@@ -1,9 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
 import Login from '../views/Login'
 import Register from '../views/Register'
-import Dashboard from '../views/Dashboard'
 import SquadList from '../views/squads/list'
 import SquadNew from '../views/squads/new'
 import SquadEdit from '../views/squads/edit'
@@ -18,10 +16,11 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home,
+    name: 'home',
+    component: ReservationList,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      title: 'Reservaciones'
     }
   },
   {
@@ -36,14 +35,6 @@ const routes = [
     meta: {
       requiresAuth: true,
       title: 'Registro de usuarios'
-    }
-  },
-  {
-    path: '/dashboard',
-    name: 'Dashboard',
-    component: Dashboard,
-    meta: {
-      requiresAuth: true
     }
   },
   {

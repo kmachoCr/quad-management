@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
-      <a class="navbar-brand" href="#">(Logo)</a>
+      <a class="navbar-brand" href="/reservations">(Logo)</a>
       <button
         class="navbar-toggler"
         type="button"

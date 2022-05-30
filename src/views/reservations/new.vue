@@ -1,6 +1,6 @@
 <template>
   <div v-if="loadedData" class="no-gutters">
-    <div class="reservation-form col-10">
+    <div class="reservation-form">
       <hr />
       <form @submit.prevent="formSubmit" ref="form">
         <div class="step-one">
@@ -45,17 +45,8 @@
               />
             </div>
           </div>
-          <table class="table mb-5">
-            <thead class="">
-              <tr>
-                <th scope="col" class="border-0"></th>
-                <th scope="col" class="border-0">Placa</th>
-                <th scope="col" class="border-0">Marca</th>
-                <th scope="col" class="border-0">Color</th>
-                <th scope="col" class="border-0">Año</th>
-              </tr>
-            </thead>
-            <tbody>
+          <tableContent :columnNames="squadColumns">
+            <template v-slot:table-content>
               <tr v-for="(item, index) in keyFilteredSquads" :key="index">
                 <td>
                   <div class="custom-">
@@ -73,11 +64,11 @@
                 </td>
                 <td>{{ item.id }}</td>
                 <td>{{ item.brand }}</td>
-                <td>{{ item.color }}</td>
                 <td>{{ item.year }}</td>
               </tr>
-            </tbody>
-          </table>
+            </template>
+          </tableContent>
+          
         </div>
         <div class="step-two">
           <h4 class="mt-4 mb-3">3. Seleccione un usuario</h4>
@@ -94,16 +85,8 @@
               />
             </div>
           </div>
-          <table class="table mb-4">
-            <thead class="">
-              <tr>
-                <th scope="col" class="border-0"></th>
-                <th scope="col" class="border-0">Cedula</th>
-                <th scope="col" class="border-0">Nombre</th>
-                <th scope="col" class="border-0">Apellidos</th>
-              </tr>
-            </thead>
-            <tbody>
+          <tableContent :columnNames="userColumns">
+            <template v-slot:table-content>
               <tr v-for="(item, index) in keyFilteredUsers" :key="index">
                 <td>
                   <div class="custom-">
@@ -121,10 +104,11 @@
                 <td>{{ item.name }}</td>
                 <td>{{ item.first_surname }} {{ item.second_surname }}</td>
               </tr>
-            </tbody>
-          </table>
+            </template>
+          </tableContent>
         </div>
         <alert :classes="alert.class" :isVisible="alert.status" :label="alert.label"/>
+        <loadingModal :showModal="showLoadingModal"></loadingModal>
         <input
           type="submit"
           class="sq-mngm-btn sq-mngm-form__button--submit mt-4"
@@ -138,6 +122,8 @@
 import { mapGetters } from "vuex";
 import input from "./../../components/form-inputs/inputForm.vue";
 import alert from './../../components/alert.vue';
+import tableContent from './../../components/general/ReservationTable.vue';
+import loadingModal from './../../components/loadingModal.vue';
 
 export default {
   computed: {
@@ -176,6 +162,9 @@ export default {
   },
   data: function () {
     return {
+      showLoadingModal: false,
+      userColumns: ['', 'Cedula', 'Nombre', 'Apellidos'],
+      squadColumns: ['', 'Placa', 'Marca', 'Modelo'],
       keywordSquad: "",
       keywordUser: "",
       datesSelected: false,
@@ -215,13 +204,14 @@ export default {
 
         this.filteredSquads = this.squads.filter((el) => {
           return (
-            !el.reserved.includes(this.minDate) &&
-            !el.reserved.includes(this.endDate)
+            !(el.reserved ?? []).some(r => this.rangeDays.includes(r)) 
           );
         });
       }
+      console.log(this.filteredSquads);
     },
     formSubmit() {
+      this.showLoadingModal = true;
       this.alert.status = false;
       this.formData.user = this.$store.getters.database.doc(this.formData.user);
       this.formData.squad = this.$store.getters.database.doc(
@@ -240,9 +230,14 @@ export default {
         .doc(this.selectedSquad.code)
         .update({ reserved: newDatesRange })
         .then(() => {
-          this.alert.status = true;
-          this.alert.class = "alert-success";
-          this.alert.label = "La reservación fue guardada exitosamente.";
+          setTimeout(() => {
+            this.showLoadingModal = false;
+            this.alert.status = true;
+            this.alert.class = "alert-success";
+            this.alert.label = "La reservación fue guardada exitosamente.";
+            window.location = '/reservations'
+          }, 1500);
+          
         })
         .catch(() => {
            this.alert.status = true;
@@ -297,6 +292,8 @@ export default {
   components: {
     inputForm: input,
     alert,
+    tableContent,
+    loadingModal,
   },
 };
 </script>

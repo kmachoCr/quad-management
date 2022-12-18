@@ -26,7 +26,7 @@ export default {
     FormFactory,
   },
   mounted() {
-    this.getSquadInformation();
+    this.getUserInformation();
 
     for (let index = 15; index < 100; index++) {
       this.fields[5].options.push({
@@ -41,7 +41,7 @@ export default {
       fields: [
         {
           class: "inputForm",
-          label: "Cédula",
+          label: "Id",
           name: "id",
           required: true,
         },
@@ -78,6 +78,12 @@ export default {
           required: true,
         },
         {
+          class: "inputForm",
+          label: "Nacionalidad",
+          name: "nationality",
+          required: true,
+        },
+        {
           class: "textAreaForm",
           label: "Dirección",
           name: "address",
@@ -87,7 +93,7 @@ export default {
     };
   },
   methods: {
-    getSquadInformation() {
+    getUserInformation() {
       this.$store.getters.database
         .collection("users")
         .doc(this.$route.params.id)

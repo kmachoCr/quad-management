@@ -1,17 +1,30 @@
 <template>
   <div class="border-top pt-4">
+    <div class="form-group row">
+      <label for="inputEmail3" class="col-auto col-form-label"
+        >Filtrar por id:</label
+      >
+      <div class="col">
+        <input
+          type="text"
+          v-model="keywordReservation"
+          class="form-control"
+          placeholder="Número de Id"
+        />
+      </div>
+    </div>
     <table class="table mb-4">
       <thead class="">
         <tr>
-          <th scope="col" class="border-0">Cédula</th>
+          <th scope="col" class="border-0">C&eacute;dula</th>
           <th scope="col" class="border-0">Nombre</th>
-          <th scope="col" class="border-0">Cuadraciclo</th>
+          <th scope="col" class="border-0">Unidades</th>
           <th scope="col" class="border-0">Fechas</th>
           <th scope="col" class="border-0">Acciones</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(item, index) in reservations" :key="index">
+        <tr v-for="(item, index) in keyFilteredReservations" :key="index">
           <td>{{ item.user ? item.user.id : "No info" }}</td>
           <td>
             {{
@@ -20,12 +33,19 @@
                 : "No info"
             }}
           </td>
-          <td>{{ item.squad ? item.squad.id : "No info" }}</td>
-          <td>{{ item.startDate }} - {{ item.endDate }}</td>
+          <td>
+            <span v-for="(item, index) in item.squads" :key="index">{{item.numUnit}} </span>
+          </td>
+          <td><strong>De</strong>: {{ item.startDate }} <strong>Hasta</strong>: {{ item.endDate }}</td>
           <td>
             <button @click.prevent="showModal(item)" class="btn btn-link">
               Borrar
             </button>
+            <router-link
+              :to="{ name: 'reservationsEdit', params: { id: item.code } }"
+              class=""
+              >Editar</router-link
+            >
           </td>
         </tr>
       </tbody>
@@ -38,11 +58,11 @@
     <router-link
       :to="{ name: 'reservationNew' }"
       class="sq-mngm-btn float-right"
-      >Nueva reservación</router-link
+      >Nueva reservaci&oacute;n</router-link
     >
     <modal
       :description="'Desea eliminar esta reservación?'"
-      :title="'Eliminación de reservación'"
+      :title="'Eliminar de Reservación'"
       @emitConfirmation="emitConfirmation"
       :showModal="showConfirmationModal"
     />
@@ -59,6 +79,17 @@ export default {
     ...mapGetters({
       user: "user",
     }),
+    keyFilteredReservations() {
+      if (this.keywordReservation.length > 2) {
+        let key = this.keywordReservation;
+        let keyFilteredReservations = this.reservations.filter((el) => {
+          return el.user.id.includes(key);
+        });
+
+        return keyFilteredReservations;
+      }
+      return this.reservations;
+    },
   },
   mounted() {
     this.getSquadInformation();
@@ -70,6 +101,7 @@ export default {
   data: function () {
     return {
       reservations: [],
+      keywordReservation: "",
       showConfirmationModal: false,
       itemToDelete: null,
       squadToUpdate: null,
@@ -88,6 +120,7 @@ export default {
     showModal(item) {
       this.itemToDelete = item;
       this.squadToUpdate = item.squad;
+      console.log(item);
       this.showConfirmationModal = true;
     },
     getDaysArray: function (start, end) {
@@ -148,13 +181,27 @@ export default {
               });
             }
 
-            if (newReservation.squad) {
-              newReservation.squad.get().then((res) => {
-                newReservation.squad = res.data();
-                newReservation.squad
-                  ? (newReservation.squad.code = res.id)
-                  : null;
+            if (newReservation.squad.length > 0) {
+              newReservation.squads = [];
+              newReservation.squad.forEach((sq, index) => {
+                this.$store.getters.database
+                  .collection("squads")
+                  .doc(sq)
+                  .get()
+                  .then((doc) => {
+                    if (doc.exists) {
+                      
+                      newReservation.squads[index] = doc.data();
+                      newReservation.squads[index] ? (newReservation.squads[index].code = doc.id) : null;
+                    } else {
+                      console.log("No such document!");
+                    }
+                  })
+                  .catch((error) => {
+                    console.log("Error getting document:", error);
+                  });
               });
+              
             }
 
             this.reservations.push(newReservation);

@@ -6,6 +6,15 @@ import store from "./store";
 
 Vue.config.productionTip = false
 
+// const firebaseConfig = {
+//   apiKey: "AIzaSyDfqjN22kpm2fW28uFAA14GmjkegXYAPlg",
+//   authDomain: "rent-quad-42032.firebaseapp.com",
+//   projectId: "rent-quad",
+//   storageBucket: "rent-quad.appspot.com",
+//   messagingSenderId: "729765756953",
+//   appId: "1:729765756953:web:5585ab5c0564c18582ea88"
+// };
+
 const firebaseConfig = {
   apiKey: "AIzaSyA-3i0cENo8Q7-1GgMhXpe36c_vJrs3evk",
   authDomain: "squad-management.firebaseapp.com",

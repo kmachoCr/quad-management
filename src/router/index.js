@@ -9,6 +9,7 @@ import UserList from '../views/users/list'
 import UserNew from '../views/users/new'
 import UserEdit from '../views/users/edit'
 import ReservationNew from '../views/reservations/new'
+import ReservationEdit from '../views/reservations/edit'
 import ReservationList from '../views/reservations/list'
 
 Vue.use(VueRouter)
@@ -107,6 +108,15 @@ const routes = [
     meta: {
       requiresAuth: true,
       title: 'Reservaciones'
+    }
+  },
+  {
+    path: '/reservations/:id/edit',
+    name: 'reservationsEdit',
+    component: ReservationEdit,
+    meta: {
+      requiresAuth: true,
+      title: 'Edición de reservations'
     }
   },
 ]

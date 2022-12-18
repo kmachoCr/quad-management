@@ -28,6 +28,11 @@ export default {
   created(){
     this.state = this.value;
   },
+  watch: {
+    value() {
+      this.state = this.value;
+    }
+  },
   methods: {
     emitChange() {
       this.$emit("inputChange", {'val': this.state, 'name': this.name});

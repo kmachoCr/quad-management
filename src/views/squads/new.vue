@@ -23,13 +23,13 @@ export default {
   mounted() {
     let currentYear = new Date().getFullYear();
     for (let index = 0; index < 20; index++) {
-      this.fields[3].options.push({
+      this.fields[4].options.push({
         value: currentYear - index,
         label: currentYear - index,
       });
     }
     this.squadBrands.forEach((element) => {
-      this.fields[0].options.push({
+      this.fields[2].options.push({
         value: element,
         label: element,
       });
@@ -52,16 +52,23 @@ export default {
       ],
       fields: [
         {
-          class: "dropdown",
-          label: "Marca",
-          name: "brand",
-          options: [],
+          class: "inputForm",
+          label: "Número de Unidad",
+          name: "numUnit",
+          duplicate: false,
           required: true,
         },
         {
           class: "inputForm",
-          label: "Placa",
+          label: "Número de Placa",
           name: "id",
+          required: true,
+        },
+        {
+          class: "dropdown",
+          label: "Marca",
+          name: "brand",
+          options: [],
           required: true,
         },
         {
@@ -78,18 +85,24 @@ export default {
           required: true,
         },
         {
-          class: "checkbox",
-          label: "Disponibilidad",
-          name: "isAvailable",
-
+          class: "inputForm",
+          label: "CC",
+          name: "cc",
           required: true,
         },
+        // {
+        //   class: "checkbox",
+        //   label: "Disponibilidad",
+        //   name: "isAvailable",
+
+        //   required: true,
+        // },
         {
           class: "checkbox",
-          label: "Status",
+          label: "Unidad disponible",
           name: "status",
           required: true,
-        },
+        }
       ],
     };
   },

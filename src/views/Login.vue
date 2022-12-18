@@ -3,12 +3,12 @@
     <div class="row justify-content-center">
       <div class="col-md-8">
         <div class="card">
-          <div class="card-header">Inicio de sesión</div>
+          <div class="card-header">Inicio de sesi&oacute;n</div>
           <div class="card-body">
             <div v-if="error" class="alert alert-danger">{{error}}</div>
             <form action="#" @submit.prevent="submit">
               <div class="form-group row">
-                <label for="email" class="col-md-4 col-form-label text-md-right">Correo Electrónico</label>
+                <label for="email" class="col-md-4 col-form-label text-md-right">Correo Electr&oacute;nico</label>
 
                 <div class="col-md-6">
                   <input
@@ -25,7 +25,7 @@
               </div>
 
               <div class="form-group row">
-                <label for="password" class="col-md-4 col-form-label text-md-right">Contraseña</label>
+                <label for="password" class="col-md-4 col-form-label text-md-right">Contrase&ntilde;a</label>
 
                 <div class="col-md-6">
                   <input
@@ -41,7 +41,7 @@
 
               <div class="form-group row mb-0">
                 <div class="col-md-8 offset-md-4">
-                  <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+                  <button type="submit" class="btn btn-primary">Iniciar sesi&oacute;n</button>
                 </div>
               </div>
             </form>

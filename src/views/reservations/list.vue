@@ -41,6 +41,9 @@
             <button @click.prevent="showModal(item)" class="btn btn-link">
               Borrar
             </button>
+            <button @click.prevent="showModal(item, true)" class="btn btn-link">
+              Finalizar
+            </button>
             <router-link
               :to="{ name: 'reservationsEdit', params: { id: item.code } }"
               class=""
@@ -83,12 +86,14 @@ export default {
       if (this.keywordReservation.length > 2) {
         let key = this.keywordReservation;
         let keyFilteredReservations = this.reservations.filter((el) => {
-          return el.user.id.includes(key);
+          return el.user.id.includes(key) && !el.finished;
         });
 
         return keyFilteredReservations;
       }
-      return this.reservations;
+      return this.reservations.filter((el) => {
+          return !el.finished;
+        });
     },
   },
   mounted() {
@@ -105,6 +110,7 @@ export default {
       showConfirmationModal: false,
       itemToDelete: null,
       squadToUpdate: null,
+      isCheckout: false,
       alert: {
         status: false,
       },
@@ -113,14 +119,19 @@ export default {
   methods: {
     emitConfirmation(value) {
       if (value) {
-        this.deleteData();
+        if (!this.isCheckout) {
+          this.deleteData();
+        } else {
+          this.finishReservation();
+        }
+        
       }
       this.showConfirmationModal = false;
     },
-    showModal(item) {
+    showModal(item, isCheckout = false) {
+      this.isCheckout = isCheckout;
       this.itemToDelete = item;
-      this.squadToUpdate = item.squad;
-      console.log(item);
+      this.squadToUpdate = item.squads;
       this.showConfirmationModal = true;
     },
     getDaysArray: function (start, end) {
@@ -159,13 +170,48 @@ export default {
           this.alert.label = "Hubo un error al borrar la reservación.";
         });
 
-      const newDatesRange = this.squadToUpdate.reserved.filter(
-        (item) => !rangeDays.includes(item)
+        this.squadToUpdate.forEach(async (squad) => {
+          const newDatesRange = squad.reserved.filter(
+            (item) => !rangeDays.includes(item)
+          );
+          await this.$store.getters.database
+            .collection("squads")
+            .doc(squad.code)
+            .update({ reserved: newDatesRange });
+        });
+    },
+    async finishReservation() {
+      this.alert.status = true;
+      const rangeDays = this.getDaysArray(
+        new Date(this.itemToDelete.startDate),
+        new Date(this.itemToDelete.endDate)
       );
+
       await this.$store.getters.database
-        .collection("squads")
-        .doc(this.squadToUpdate.code)
-        .update({ reserved: newDatesRange });
+        .collection("reservations")
+        .doc(this.itemToDelete.code)
+        .update({finished: true})
+        .then(() => {
+          this.itemToDelete = null;
+          this.alert.status = true;
+          this.alert.class = "alert-success";
+          this.alert.label = "La reservación fue finalizada exitosamente.";
+        })
+        .catch(() => {
+          this.itemToDelete = null;
+          this.alert.status = true;
+          this.alert.class = "alert-warning";
+          this.alert.label = "Hubo un error al finalizar la reservación.";
+        });
+        this.squadToUpdate.forEach(async (squad) => {
+          const newDatesRange = squad.reserved.filter(
+            (item) => !rangeDays.includes(item)
+          );
+          await this.$store.getters.database
+            .collection("squads")
+            .doc(squad.code)
+            .update({ reserved: newDatesRange, status: false });
+        });
     },
     getSquadInformation: function () {
       this.$store.getters.database
@@ -178,6 +224,7 @@ export default {
             if (newReservation.user) {
               newReservation.user.get().then((res) => {
                 newReservation.user = res.data();
+                
               });
             }
 

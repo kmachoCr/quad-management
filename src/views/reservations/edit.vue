@@ -7,19 +7,43 @@
           <h4 class="mb-3">1. Seleccione una fecha</h4>
           <div class="reservation-form__dates">
             <div class="reservation-form__date-input">
-              <inputForm type="date" ref="input" classes="pr-2" :min="today" name="startDate" label="Fecha de inicio"
-                @inputChange="dateChange" :required="true" />
+              <inputForm
+                type="date"
+                ref="input"
+                classes="pr-2"
+                :value="minDate"
+                name="startDate"
+                label="Fecha de inicio"
+                @inputChange="dateChange"
+                :required="true"
+              />
             </div>
             <div class="reservation-form__date-input">
-              <inputForm type="date" ref="input" classes="pl-2" name="endDate" :min="minDate" label="Fecha de fin"
-                @inputChange="dateChange" :required="true" />
+              <inputForm
+                type="date"
+                ref="input"
+                classes="pl-2"
+                name="endDate"
+                :min="minDate"
+                :value="endDate"
+                label="Fecha de fin"
+                @inputChange="dateChange"
+                :required="true"
+              />
             </div>
           </div>
           <h4 class="mt-4 mb-3">2. Seleccione un cuadraciclo</h4>
           <div class="form-group row">
-            <label for="inputEmail3" class="col-auto col-form-label">Filtrar por n&uacute;mero de unidad:</label>
+            <label for="inputEmail3" class="col-auto col-form-label"
+              >Filtrar por n&uacute;mero de unidad:</label
+            >
             <div class="col">
-              <input v-model="keywordSquad" type="text" class="form-control" placeholder="Número de unidad" />
+              <input
+                v-model="keywordSquad"
+                type="text"
+                class="form-control"
+                placeholder="Número de unidad"
+              />
             </div>
           </div>
           <tableContent :columnNames="squadColumns">
@@ -27,8 +51,15 @@
               <tr v-for="(item, index) in keyFilteredSquads" :key="index">
                 <td>
                   <div class="custom-">
-                    <input :disabled="!minDate || !endDate" type="checkbox" ref="input" v-model="selectedSquad"
-                      :value="item" name="code-squads[]" class="custom--input" />
+                    <input
+                      :disabled="!minDate || !endDate"
+                      type="checkbox"
+                      ref="input"
+                      v-model="selectedSquad"
+                      :value="item"
+                      :name="`code-squads[]`"
+                      class="custom--input"
+                    />
                   </div>
                 </td>
                 <td>{{ item.numUnit }}</td>
@@ -38,14 +69,21 @@
               </tr>
             </template>
           </tableContent>
-
+          
         </div>
         <div class="step-two">
           <h4 class="mt-4 mb-3">3. Seleccione un usuario</h4>
           <div class="form-group row">
-            <label for="inputEmail3" class="col-auto col-form-label">Filtrar por c&eacute;dula:</label>
+            <label for="inputEmail3" class="col-auto col-form-label"
+              >Filtrar por c&eacute;dula:</label
+            >
             <div class="col">
-              <input type="text" v-model="keywordUser" class="form-control" placeholder="Número de Id" />
+              <input
+                type="text"
+                v-model="keywordUser"
+                class="form-control"
+                placeholder="Número de Id"
+              />
             </div>
           </div>
           <tableContent :columnNames="userColumns">
@@ -53,8 +91,14 @@
               <tr v-for="(item, index) in keyFilteredUsers" :key="index">
                 <td>
                   <div class="custom-">
-                    <input type="radio" required :value="`users/${item.code}`" v-model="formData.user" name="code-users"
-                      class="custom--input" />
+                    <input
+                      type="radio"
+                      required
+                      v-bind:value="`users/${item.code}`"
+                      v-model="selectedUser"
+                      name="code-users"
+                      class="custom--input"
+                    />
                   </div>
                 </td>
                 <td>{{ item.id }}</td>
@@ -64,19 +108,23 @@
             </template>
           </tableContent>
         </div>
-        <alert :classes="alert.class" :isVisible="alert.status" :label="alert.label" />
+        <alert :classes="alert.class" :isVisible="alert.status" :label="alert.label"/>
         <loadingModal :showModal="showLoadingModal"></loadingModal>
-        <input type="submit" class="sq-mngm-btn sq-mngm-form__button--submit mt-4" value="Enviar" />
+        <input
+          type="submit"
+          class="sq-mngm-btn sq-mngm-form__button--submit mt-4"
+          value="Enviar"
+        />
       </form>
     </div>
   </div>
 </template>
 <script>
 import { mapGetters } from "vuex";
-import input from "./../../components/form-inputs/inputForm.vue";
-import alert from './../../components/alert.vue';
-import tableContent from './../../components/general/ReservationTable.vue';
-import loadingModal from './../../components/loadingModal.vue';
+import input from "../../components/form-inputs/inputForm.vue";
+import alert from '../../components/alert.vue';
+import tableContent from '../../components/general/ReservationTable.vue';
+import loadingModal from '../../components/loadingModal.vue';
 
 export default {
   computed: {
@@ -108,9 +156,9 @@ export default {
     },
   },
   mounted() {
+    this.getReservationInformation();
     this.getNeededData();
     const date = new Date().toISOString().slice(0, 10);
-    this.minDate = date;
     this.today = date;
   },
   data: function () {
@@ -133,19 +181,48 @@ export default {
       users: [],
       alert: {
         status: false
-      }
+      },
+      reservation: null,
+      selectedUser: null
     };
   },
   methods: {
+    getReservationInformation() {
+      this.$store.getters.database
+        .collection("reservations")
+        .doc(this.$route.params.id)
+        .get()
+        .then((doc) => {
+          if (doc.exists) {
+            //this.formState = doc.data();
+            console.log(doc.data());
+            this.reservation = doc.data(); 
+            this.reservation.code = doc.id; 
+            this.minDate = doc.data().startDate;
+            this.endDate = doc.data().endDate;
+            doc.data().user.get().then((res) => {
+              this.selectedUser = `users/${res.id}`;
+            });
+            
+           
+            this.dateChange();
+          } else {
+            console.log("No such document!");
+          }
+        })
+        .catch((error) => {
+          console.log("Error getting document:", error);
+        });
+    },
     // getAvailable(isAvailable) {
     //   return isAvailable ? "Disponible" : "No Disponible";
     // },
     dateChange(data) {
       // debugger; eslint-disable-line no-debugger
-      if (data.name === "startDate") {
+      if (data && data.name === "startDate") {
         console.log(data.val);
         this.minDate = data.val;
-      } else {
+      } else if (data) {
         this.endDate = data.val;
       }
 
@@ -157,12 +234,13 @@ export default {
 
         this.filteredSquads = this.squads.filter((el) => {
           return (
-            !(el.reserved ?? []).some(r => this.rangeDays.includes(r))
+            !(el.reserved ?? []).some(r => this.rangeDays.includes(r)) 
           );
         });
       }
       console.log(this.filteredSquads);
     },
+    
     formSubmit() {
       this.showLoadingModal = true;
       this.alert.status = false;
@@ -175,21 +253,23 @@ export default {
 
       this.$store.getters.database
         .collection("reservations")
-        .add(this.formData)
+        .doc(this.reservation.code)
+        .update(this.formData)
         .then(() => {
-          this.showLoadingModal = false;
-          this.alert.status = true;
-          this.alert.class = "alert-success";
-          this.alert.label = "La reservación fue guardada exitosamente.";
-          window.location = '/reservations';
-
-        })
-        .catch(() => {
-          this.showLoadingModal = false;
-          this.alert.status = true;
-          this.alert.class = "alert-warning";
-          this.alert.label = "Hubo un error al guardar la reservación.";
-        });
+            setTimeout(() => {
+              this.showLoadingModal = false;
+              this.alert.status = true;
+              this.alert.class = "alert-success";
+              this.alert.label = "La reservación fue guardada exitosamente.";
+              window.location = '/reservations'
+            }, 1500);
+            
+          })
+          .catch(() => {
+            this.alert.status = true;
+            this.alert.class = "alert-warning";
+            this.alert.label = "Hubo un error al guardar la reservación.";
+          })
 
       this.selectedSquad.forEach(squad => {
         const newDatesRange = squad.reserved ? squad.reserved.concat(this.rangeDays) : this.rangeDays;
@@ -198,11 +278,7 @@ export default {
           .doc(squad.code)
           .update({ reserved: newDatesRange });
       });
-
-      setTimeout(() => {
-        this.showLoadingModal = false;
-        window.location = '/reservations'
-      }, 1500);
+      
       this.$refs.form.reset();
     },
     getSquadInformation: function () {
@@ -249,6 +325,11 @@ export default {
       this.loadedData = true;
     },
   },
+  watch: {
+    selectedUser() {
+      this.formData.user = this.selectedUser;
+    }
+  },
   components: {
     inputForm: input,
     alert,
@@ -261,7 +342,6 @@ export default {
 .reservation-form__dates {
   display: flex;
 }
-
 .reservation-form__date-input {
   flex: 1;
 }

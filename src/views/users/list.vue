@@ -2,26 +2,28 @@
   <div class="border-top pt-4">
     <div class="form-group row">
       <label for="inputEmail3" class="col-auto col-form-label"
-        >Filtrar por cédula:</label
+        >Filtrar por id:</label
       >
       <div class="col">
         <input
           type="text"
           v-model="keywordUser"
           class="form-control"
-          placeholder="Palabra clave"
+          placeholder="Número de Id"
         />
       </div>
     </div>
     <table class="table mb-4">
       <thead class="">
         <tr>
-          <th scope="col" class="border-0">Cédula</th>
+          <th scope="col" class="border-0">C&eacute;dula</th>
           <th scope="col" class="border-0">Nombre</th>
           <th scope="col" class="border-0">1er Apellido</th>
           <th scope="col" class="border-0">2do Apellido</th>
           <th scope="col" class="border-0">Fecha de nacimiento</th>
           <th scope="col" class="border-0">Edad</th>
+          <th scope="col" class="border-0">Tipo</th>
+          <th scope="col" class="border-0">Nacionalidad</th>
           <th scope="col" class="border-0">Acciones</th>
         </tr>
       </thead>
@@ -39,6 +41,8 @@
           <td>{{ item.second_surname }}</td>
           <td>{{ item.birthday }}</td>
           <td>{{ item.age }} años</td>
+          <td>{{ item.isAdmin === true ? 'Administrador' : 'Cliente' }}</td>
+          <td>{{item.nationality}}</td>
           <td>
             <button @click.prevent="showModal(item.code)" class="btn btn-link">
               Borrar
@@ -57,7 +61,7 @@
     >
     <modal
       :description="'Desea eliminar este usuario?'"
-      :title="'Eliminación de usuario'"
+      :title="'Eliminar Usuario'"
       @emitConfirmation="emitConfirmation"
       :showModal="showConfirmationModal"
     />
@@ -137,9 +141,9 @@ export default {
           this.alert.label = "Hubo un error al borrar el usuario.";
         });
     },
-    getAvailable(isAvailable) {
-      return isAvailable ? "Disponible" : "No Disponible";
-    },
+    // getAvailable(isAvailable) {
+    //   return isAvailable ? "Disponible" : "No Disponible";
+    // },
     getUserInformation: function () {
       this.$store.getters.database
         .collection("users")

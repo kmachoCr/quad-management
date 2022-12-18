@@ -2,24 +2,25 @@
   <div class="border-top pt-4">
     <div class="form-group row">
       <label for="inputEmail3" class="col-auto col-form-label"
-        >Filtrar por placa:</label
+        >Filtrar por N&uacute;mero de unidad:</label
       >
       <div class="col">
         <input
           v-model="keywordSquad"
           type="text"
           class="form-control"
-          placeholder="Palabra clave"
+          placeholder="Número de Unidad"
         />
       </div>
     </div>
     <table class="table mb-4">
       <thead class="">
         <tr>
-          <th scope="col" class="border-0">Placa</th>
+          <th scope="col" class="border-0">N&uacute;mero de Unidad</th>
+          <th scope="col" class="border-0">N&uacute;mero de Placa</th>  
           <th scope="col" class="border-0">Marca</th>
           <th scope="col" class="border-0">Color</th>
-          <th scope="col" class="border-0">Año (Modelo)</th>
+          <th scope="col" class="border-0">A&ntilde;o (Modelo)</th>
           <th scope="col" class="border-0">Estado</th>
           <th scope="col" class="border-0">Acciones</th>
         </tr>
@@ -30,9 +31,10 @@
             <router-link
               :to="{ name: 'squadEdit', params: { id: item.code } }"
               class=""
-              >{{ item.id }}</router-link
+              >{{ item.numUnit }}</router-link
             >
           </td>
+          <td>{{ item.id }}</td>
           <td>{{ item.brand }}</td>
           <td>{{ item.color }}</td>
           <td>{{ item.year }}</td>
@@ -57,7 +59,7 @@
     >
     <modal
       :description="'Desea eliminar este cuadraciclo?'"
-      :title="'Eliminación de cuadraciclo'"
+      :title="'Eliminar Cuadraciclo'"
       @emitConfirmation="emitConfirmation"
       :showModal="showConfirmationModal"
     />
@@ -77,7 +79,7 @@ export default {
       if (this.keywordSquad.length > 2) {
         let key = this.keywordSquad;
         let keyFilteredSquads = this.squads.filter((el) => {
-          return el.id.includes(key);
+          return el.numUnit.includes(key);
         });
 
         return keyFilteredSquads;
@@ -115,9 +117,9 @@ export default {
       this.itemToDelete = code;
       this.showConfirmationModal = true;
     },
-    getAvailable(isAvailable) {
-      return isAvailable ? "Disponible" : "No Disponible";
-    },
+    // getAvailable(isAvailable) {
+    //   return isAvailable ? "Disponible" : "No Disponible";
+    // },
     deleteData() {
       this.alert.status = true;
       this.$store.getters.database

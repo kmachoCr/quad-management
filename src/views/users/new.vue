@@ -36,7 +36,7 @@ export default {
       fields: [
         {
           class: "inputForm",
-          label: "Cédula",
+          label: "Id",
           name: "id",
           required: true,
         },
@@ -76,6 +76,12 @@ export default {
           class: "textAreaForm",
           label: "Dirección",
           name: "address",
+          required: true,
+        },
+        {
+          class: "inputForm",
+          label: "Nacionalidad",
+          name: "nationality",
           required: true,
         },
         {

@@ -21,7 +21,7 @@
           :type="'email'"
           ref="input"
           name="email"
-          label="Email"
+          label="Correo electrónico"
           :required="true"
         />
         <inputForm
@@ -29,7 +29,7 @@
           :type="'password'"
           ref="input"
           name="password"
-          label="Contrase;a"
+          label="Contraseña"
           :required="true"
         />
       </div>
@@ -145,24 +145,32 @@ export default {
     /**
       * Add into a firebase database, the information entered by user
       */
-    addUser(uid) {
+    async addUser(uid) {
       this.alert.status = false;
       Object.assign(this.formState, this.showAdmin && { 'uid': uid });
       delete this.formState.password;
       delete this.formState.email;
       this.formState.isAdmin = this.formState["isAdmin"] ? this.formState["isAdmin"] : false ;
-      this.dbCollection
-        .add(this.formState)
-        .then(() => {
-          this.alert.status = true;
-          this.alert.class = "alert-success";
-          this.alert.label = this.successMessage;
-        })
-        .catch(() => {
-          this.alert.status = true;
-          this.alert.class = "alert-warning";
-          this.alert.label = this.failureMessage;
-        });
+
+      let docExist = await this.isAlreadyCreated();  
+      if(!docExist){
+        this.dbCollection
+          .add(this.formState)
+          .then(() => {
+            this.alert.status = true;
+            this.alert.class = "alert-success";
+            this.alert.label = this.successMessage;
+          })
+          .catch(() => {
+            this.alert.status = true;
+            this.alert.class = "alert-warning";
+            this.alert.label = this.failureMessage;
+          });
+      } else {
+        this.alert.status = true;
+        this.alert.class = "alert-warning";
+        this.alert.label = 'YA EXISTE';
+      }
     },
     /**
       * Updates a record of the firebase database with the information entered by user
@@ -183,6 +191,30 @@ export default {
           this.alert.class = "alert-warning";
           this.alert.label = this.failureMessage;
         });
+    },
+    async isAlreadyCreated() {
+      let fields = this.formFields.filter((e) => e.duplicate === false);
+      let state = this.formState;
+
+      let query = this.$store.getters.database.collection(this.collection);
+
+      fields.forEach(field => {
+        query = query.where(field.name, "==", state[field.name]);
+      });
+
+      let isCreated = false;
+      
+      await query.get()
+        .then((doc) => {
+          if (doc.size) {
+            isCreated = true;
+          }
+        })
+        .catch((error) => {
+          console.log("Error getting document:", error);
+        });
+
+        return isCreated;
     },
   },
 };

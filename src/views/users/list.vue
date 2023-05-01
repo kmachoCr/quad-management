@@ -79,7 +79,7 @@ export default {
       user: "user",
     }),
     keyFilteredUsers() {
-      if (this.keywordUser.length > 2) {
+      if (this.keywordUser.length > 1) {
         let key = this.keywordUser;
         let keyFilteredUsers = this.users.filter((el) => {
           return el.id.includes(key);

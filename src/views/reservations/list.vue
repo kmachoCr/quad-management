@@ -83,10 +83,10 @@ export default {
       user: "user",
     }),
     keyFilteredReservations() {
-      if (this.keywordReservation.length > 2) {
+      if (this.keywordReservation.length > 1) {
         let key = this.keywordReservation;
         let keyFilteredReservations = this.reservations.filter((el) => {
-          return el.user.id.includes(key) && !el.finished;
+          return el.user && (el.user.id.includes(key)) && !el.finished;
         });
 
         return keyFilteredReservations;

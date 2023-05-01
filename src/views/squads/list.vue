@@ -76,7 +76,7 @@ export default {
       user: "user",
     }),
     keyFilteredSquads() {
-      if (this.keywordSquad.length > 2) {
+      if (this.keywordSquad.length) {
         let key = this.keywordSquad;
         let keyFilteredSquads = this.squads.filter((el) => {
           return el.numUnit.includes(key);
